@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Sign Waiver — Mulberry E-Scooter Tours{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="waiver-page">
+        <div class="booking-form">
+            <h2><i class="fas fa-file-signature" style="color:var(--primary);"></i> Liability Waiver</h2>
+            <p class="text-muted text-sm mb-2">Booking: <strong>{{ booking.booking_ref }}</strong> — {{ booking.tour_name }}</p>
+
+            <div class="waiver-content">
+                {% if waiver %}
+                {{ waiver.content|safe }}
+                {% else %}
+                <h3>RELEASE OF LIABILITY, WAIVER OF CLAIMS, AND ASSUMPTION OF RISK</h3>
+                <p><strong>Mulberry E-Scooter Tours</strong> — Mulberry, GA</p>
+                <p>By signing this waiver, I acknowledge and agree to the following:</p>
+                <p><strong>1. ASSUMPTION OF RISK:</strong> I understand that participating in an electric scooter tour involves inherent risks, including but not limited to: falls, collisions, equipment malfunction, road hazards, weather conditions, and interactions with other vehicles and pedestrians. I voluntarily assume all such risks.</p>
+                <p><strong>2. RELEASE OF LIABILITY:</strong> I hereby release, waive, and discharge Mulberry E-Scooter Tours, its owners, operators, employees, guides, and agents from any and all liability, claims, demands, or causes of action arising out of or related to any loss, damage, or injury that may be sustained by me while participating in any tour or related activities.</p>
+                <p><strong>3. MEDICAL FITNESS:</strong> I certify that I am physically fit and have no medical conditions that would prevent me from safely operating an electric scooter. I agree to inform tour staff of any conditions that may affect my participation.</p>
+                <p><strong>4. SAFETY RULES:</strong> I agree to wear the provided safety equipment (helmet) at all times during the tour, follow all instructions given by the tour guide, obey all traffic laws, and operate the scooter in a safe and responsible manner.</p>
+                <p><strong>5. MINIMUM AGE:</strong> I confirm that I am at least 16 years of age. If under 18, I confirm that a parent or legal guardian has reviewed and agreed to this waiver on my behalf.</p>
+                <p><strong>6. EQUIPMENT:</strong> I agree to use the provided equipment responsibly and will be financially responsible for any damage caused by my negligence or misuse.</p>
+                <p><strong>7. PHOTOGRAPHY:</strong> I consent to the use of photographs or videos taken during the tour for promotional purposes, unless I notify the guide before the tour begins.</p>
+                <p><strong>8. CANCELLATION:</strong> I understand the cancellation policy: full refund if cancelled 24+ hours before the tour; no refund for cancellations within 24 hours or no-shows.</p>
+                <p>I have read this waiver carefully, understand its contents, and sign it voluntarily.</p>
+                {% endif %}
+            </div>
+
+            <form method="POST" id="waiverForm">
+                <div class="waiver-agree">
+                    <input type="checkbox" id="agree_waiver" name="agree_waiver" value="1" required>
+                    <label for="agree_waiver" style="font-size:.875rem;">
+                        I have read, understood, and agree to the terms of this Liability Waiver and Release. I voluntarily assume all risks associated with participating in e-scooter tours.
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label for="signer_name">Full Legal Name (as signature) *</label>
+                    <input type="text" id="signer_name" name="signer_name" class="form-control" required placeholder="Type your full legal name">
+                    <p class="hint">By typing your name, you are electronically signing this waiver.</p>
+                </div>
+
+                {% if booking.num_riders > 1 %}
+                <div style="border-top:1px solid var(--border);margin-top:1.5rem;padding-top:1.5rem;">
+                    <h3 style="font-size:1rem;margin-bottom:.75rem;">Additional Riders</h3>
+                    <p class="text-sm text-muted mb-2">Please provide information for all {{ booking.num_riders - 1 }} additional rider(s).</p>
+                    <div id="participantForms">
+                        {% for i in range(1, booking.num_riders) %}
+                        <div class="participant-entry" style="background:var(--bg);border-radius:var(--radius-sm);padding:1rem;margin-bottom:1rem;">
+                            <h4 style="font-size:.875rem;margin-bottom:.75rem;">Rider {{ i + 1 }}</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Full Name *</label>
+                                    <input type="text" class="form-control p-name" required placeholder="Full name">
+                                </div>
+                                <div class="form-group">
+                                    <label>Age</label>
+                                    <input type="number" class="form-control p-age" min="16" placeholder="Age">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Emergency Contact</label>
+                                    <input type="text" class="form-control p-ec-name" placeholder="Contact name">
+                                </div>
+                                <div class="form-group">
+                                    <label>Emergency Phone</label>
+                                    <input type="tel" class="form-control p-ec-phone" placeholder="Phone number">
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <input type="hidden" name="participants" id="participantsJson" value="[]">
+                <button type="submit" class="btn btn-primary btn-block btn-lg mt-2">
+                    <i class="fas fa-check"></i> Sign Waiver
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('waiverForm').addEventListener('submit', function(e) {
+    const entries = document.querySelectorAll('.participant-entry');
+    const participants = [];
+    entries.forEach(entry => {
+        participants.push({
+            name: entry.querySelector('.p-name').value,
+            age: entry.querySelector('.p-age').value || null,
+            emergency_name: entry.querySelector('.p-ec-name').value,
+            emergency_phone: entry.querySelector('.p-ec-phone').value
+        });
+    });
+    document.getElementById('participantsJson').value = JSON.stringify(participants);
+});
+</script>
+{% endblock %}
