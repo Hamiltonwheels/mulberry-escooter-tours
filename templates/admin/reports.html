@@ -1,0 +1,28 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Reports{% endblock %}
+{% block page_title %}Reports & Analytics{% endblock %}
+{% block admin_content %}
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;">
+    <div class="admin-card">
+        <div class="admin-card-header"><h2><i class="fas fa-file-csv" style="color:var(--primary);"></i> Export Bookings</h2></div>
+        <div class="admin-card-body">
+            <p class="text-sm text-muted mb-2">Download all booking data as a CSV file for use in Excel or Google Sheets.</p>
+            <a href="{{ url_for('admin_export_bookings') }}" class="btn btn-primary btn-sm btn-block"><i class="fas fa-download"></i> Download CSV</a>
+        </div>
+    </div>
+    <div class="admin-card">
+        <div class="admin-card-header"><h2><i class="fas fa-chart-bar" style="color:var(--info);"></i> Quick Stats</h2></div>
+        <div class="admin-card-body">
+            <p class="text-sm text-muted mb-2">View your dashboard for real-time statistics on bookings, revenue, and fleet status.</p>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline btn-sm btn-block"><i class="fas fa-tachometer-alt"></i> Go to Dashboard</a>
+        </div>
+    </div>
+    <div class="admin-card">
+        <div class="admin-card-header"><h2><i class="fas fa-credit-card" style="color:var(--accent);"></i> Stripe Dashboard</h2></div>
+        <div class="admin-card-body">
+            <p class="text-sm text-muted mb-2">View detailed payment analytics, manage disputes, and download financial reports from Stripe.</p>
+            <a href="https://dashboard.stripe.com" target="_blank" class="btn btn-outline btn-sm btn-block"><i class="fas fa-external-link-alt"></i> Open Stripe Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
