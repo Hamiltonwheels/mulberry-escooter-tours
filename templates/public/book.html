@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Book {{ tour.name }} — Mulberry E-Scooter Tours{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="booking-form">
+            <h2><i class="fas fa-calendar-check" style="color:var(--primary);"></i> Book Your Tour</h2>
+            <p class="tour-summary">
+                <strong>{{ tour.name }}</strong> — {{ slot.formatted_date }} at {{ slot.formatted_time }}<br>
+                <span class="text-muted">{{ tour.formatted_duration }} · {{ slot.available_spots }} spot{{ 's' if slot.available_spots != 1 }} available</span>
+            </p>
+
+            <form method="POST" id="bookingForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="customer_name">Full Name *</label>
+                        <input type="text" id="customer_name" name="customer_name" class="form-control" required placeholder="Your full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="customer_email">Email *</label>
+                        <input type="email" id="customer_email" name="customer_email" class="form-control" required placeholder="you@example.com">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="customer_phone">Phone *</label>
+                        <input type="tel" id="customer_phone" name="customer_phone" class="form-control" required placeholder="(555) 123-4567">
+                    </div>
+                    <div class="form-group">
+                        <label for="num_riders">Number of Riders *</label>
+                        <select id="num_riders" name="num_riders" class="form-control" onchange="updatePrice()">
+                            {% for i in range(1, slot.available_spots + 1) %}
+                            <option value="{{ i }}">{{ i }} rider{{ 's' if i > 1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="special_requests">Special Requests</label>
+                    <textarea id="special_requests" name="special_requests" class="form-control" rows="3" placeholder="Any special needs, allergies, or requests..."></textarea>
+                </div>
+
+                <div class="price-summary" id="priceSummary">
+                    <div class="price-row">
+                        <span>{{ tour.name }}</span>
+                        <span>{{ tour.formatted_price }} × <span id="riderCount">1</span></span>
+                    </div>
+                    <div class="price-row total">
+                        <span>Total</span>
+                        <span id="totalPrice">{{ tour.formatted_price }}</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-lg">
+                    <i class="fas fa-lock"></i> Continue to Payment
+                </button>
+                <p class="text-center text-xs text-muted mt-1">
+                    <i class="fas fa-shield-alt"></i> Secure checkout powered by Stripe
+                </p>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const pricePerRider = {{ tour.price_cents }};
+function updatePrice() {
+    const riders = parseInt(document.getElementById('num_riders').value);
+    document.getElementById('riderCount').textContent = riders;
+    const total = (pricePerRider * riders / 100).toFixed(2);
+    document.getElementById('totalPrice').textContent = '$' + total;
+}
+</script>
+{% endblock %}
