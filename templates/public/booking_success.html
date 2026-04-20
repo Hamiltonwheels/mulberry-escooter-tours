@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Booking Confirmed — Mulberry E-Scooter Tours{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="success-page">
+        <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+        <h1>You're Booked!</h1>
+        <p class="text-muted">Your tour is confirmed. A confirmation email has been sent to <strong>{{ booking.customer_email }}</strong>.</p>
+
+        <div class="success-details">
+            <div class="detail-row">
+                <span class="detail-label">Booking Reference</span>
+                <span class="detail-value">{{ booking.booking_ref }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Tour</span>
+                <span class="detail-value">{{ booking.tour_name }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Date</span>
+                <span class="detail-value">{{ booking.time_slot.formatted_date }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Time</span>
+                <span class="detail-value">{{ booking.time_slot.formatted_time }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Riders</span>
+                <span class="detail-value">{{ booking.num_riders }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Total Paid</span>
+                <span class="detail-value">{{ booking.formatted_total }}</span>
+            </div>
+            {% if booking.time_slot.tour.meeting_point %}
+            <div class="detail-row">
+                <span class="detail-label">Meeting Point</span>
+                <span class="detail-value">{{ booking.time_slot.tour.meeting_point }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if not booking.waiver_signed %}
+        <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:var(--radius-sm);padding:1rem;margin-bottom:1.5rem;">
+            <p style="font-weight:600;color:#92400E;margin-bottom:.5rem;"><i class="fas fa-exclamation-triangle"></i> Waiver Required</p>
+            <p class="text-sm" style="color:#92400E;">Please sign the liability waiver before your tour.</p>
+            <a href="{{ url_for('sign_waiver', booking_ref=booking.booking_ref) }}" class="btn btn-primary btn-sm mt-1">Sign Waiver Now</a>
+        </div>
+        {% else %}
+        <div style="background:#ECFDF5;border-radius:var(--radius-sm);padding:.75rem;margin-bottom:1rem;">
+            <p class="text-sm" style="color:#065F46;"><i class="fas fa-check"></i> Waiver signed</p>
+        </div>
+        {% endif %}
+
+        <div class="success-actions">
+            <a href="{{ url_for('download_calendar', booking_ref=booking.booking_ref) }}" class="btn btn-outline btn-sm">
+                <i class="fas fa-calendar-plus"></i> Add to Calendar
+            </a>
+            <a href="{{ url_for('booking_lookup') }}" class="btn btn-outline btn-sm">
+                <i class="fas fa-search"></i> View Booking
+            </a>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-home"></i> Back to Home
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
