@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}FAQ — Mulberry E-Scooter Tours{% endblock %}
+{% block content %}
+<section class="tour-hero">
+    <div class="container">
+        <h1>Frequently Asked Questions</h1>
+        <p>Everything you need to know before your ride</p>
+    </div>
+</section>
+<section class="section">
+    <div class="container">
+        <div class="faq-list">
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">Do I need experience riding an e-scooter? <i class="fas fa-chevron-down"></i></button>
+                <div class="faq-answer">No experience needed! Every tour begins with a brief training session where your guide will teach you how to safely operate the scooter. Our scooters are easy to ride and suitable for beginners.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">What is the minimum age requirement? <i class="fas fa-chevron-down"></i></button>
+                <div class="faq-answer">Riders must be at least 16 years old. Riders under 18 must have a parent or legal guardian sign the liability waiver on their behalf.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">What should I wear/bring? <i class="fas fa-chevron-down"></i></button>
+                <div class="faq-answer">Wear comfortable, closed-toe shoes and weather-appropriate clothing. We provide helmets and safety gear. We recommend bringing sunscreen, sunglasses, and a water bottle. Leave loose scarves and dangling accessories at home.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">Is there a weight limit? <i class="fas fa-chevron-down"></i></button>
+                <div class="faq-answer">Our scooters have a recommended weight limit of 265 lbs (120 kg) for optimal performance and safety.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">What happens if it rains? <i class="fas fa-chevron-down"></i></button>
+                <div class="faq-answer">Light rain doesn't stop us — we'll provide ponchos! For severe weather (thunderstorms, heavy rain), we'll reschedule your tour at no extra charge or offer a full refund.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">What is the cancellation policy? <i class="fas fa-chevron-down"></i></button>
+                <div class="faq-answer">Free cancellation up to 24 hours before your tour for a full refund. Cancellations within 24 hours are non-refundable. No-shows are non-refundable. You can cancel online through the booking lookup page.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">How many people can ride in a group? <i class="fas fa-chevron-down"></i></button>
+                <div class="faq-answer">Our standard group size is up to 6 riders per tour. This keeps the experience personal and safe. For larger groups, please contact us to arrange a private tour.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">Do I need to sign a waiver? <i class="fas fa-chevron-down"></i></button>
+                <div class="faq-answer">Yes, all riders must sign a digital liability waiver before the tour. You can sign it online after booking — we'll include a link in your confirmation email. You can also sign at the meeting point before departure.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">How fast do the scooters go? <i class="fas fa-chevron-down"></i></button>
+                <div class="faq-answer">Our tour scooters have a comfortable cruising speed and are governed to a safe maximum for group riding. Your guide will set the pace based on the group's comfort level and the route.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">Is parking available at the meeting point? <i class="fas fa-chevron-down"></i></button>
+                <div class="faq-answer">Yes, free parking is available near our meeting points. Specific parking details will be included in your booking confirmation email.</div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="cta-banner">
+    <div class="container">
+        <h2>Still Have Questions?</h2>
+        <p>We're happy to help! Reach out anytime.</p>
+        <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg"><i class="fas fa-envelope"></i> Contact Us</a>
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+function toggleFaq(btn) {
+    btn.classList.toggle('active');
+    const answer = btn.nextElementSibling;
+    answer.classList.toggle('active');
+}
+</script>
+{% endblock %}
