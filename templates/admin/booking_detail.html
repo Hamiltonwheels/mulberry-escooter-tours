@@ -1,0 +1,123 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Booking {{ booking.booking_ref }}{% endblock %}
+{% block page_title %}Booking {{ booking.booking_ref }}{% endblock %}
+{% block admin_content %}
+<div style="display:grid;grid-template-columns:1fr;gap:1.5rem;">
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2>Booking Details</h2>
+            <span class="badge {% if booking.status == 'confirmed' %}badge-success{% elif booking.status == 'cancelled' %}badge-danger{% elif booking.status == 'completed' %}badge-info{% else %}badge-warning{% endif %}">{{ booking.status|capitalize }}</span>
+        </div>
+        <div class="admin-card-body">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;">
+                <div>
+                    <h3 class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem;">Customer</h3>
+                    <p style="font-weight:600;">{{ booking.customer_name }}</p>
+                    <p class="text-sm text-muted">{{ booking.customer_email }}</p>
+                    <p class="text-sm text-muted">{{ booking.customer_phone }}</p>
+                </div>
+                <div>
+                    <h3 class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem;">Tour</h3>
+                    <p style="font-weight:600;">{{ booking.tour_name }}</p>
+                    <p class="text-sm text-muted">{{ booking.time_slot.formatted_date }}</p>
+                    <p class="text-sm text-muted">{{ booking.time_slot.formatted_time }}</p>
+                </div>
+                <div>
+                    <h3 class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem;">Payment</h3>
+                    <p style="font-weight:600;font-size:1.25rem;color:var(--primary-dark);">{{ booking.formatted_total }}</p>
+                    <p class="text-sm"><span class="badge {% if booking.payment_status == 'paid' %}badge-success{% elif booking.payment_status == 'refunded' %}badge-danger{% else %}badge-warning{% endif %}">{{ booking.payment_status|capitalize }}</span></p>
+                    {% if booking.refund_amount_cents > 0 %}
+                    <p class="text-sm text-muted">Refunded: ${{ "%.2f"|format(booking.refund_amount_cents / 100) }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <h3 class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem;">Details</h3>
+                    <p class="text-sm">Riders: <strong>{{ booking.num_riders }}</strong></p>
+                    <p class="text-sm">Waiver: {% if booking.waiver_signed %}<span class="badge badge-success">Signed</span>{% else %}<span class="badge badge-warning">Pending</span>{% endif %}</p>
+                    <p class="text-sm text-muted">Booked: {{ booking.created_at.strftime('%b %d, %Y %I:%M %p') }}</p>
+                </div>
+            </div>
+            {% if booking.special_requests %}
+            <div style="margin-top:1.5rem;padding:1rem;background:var(--bg);border-radius:var(--radius-sm);">
+                <h3 class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem;">Special Requests</h3>
+                <p class="text-sm">{{ booking.special_requests }}</p>
+            </div>
+            {% endif %}
+            {% if booking.participants %}
+            <div style="margin-top:1.5rem;">
+                <h3 class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem;">Participants</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Name</th><th>Age</th><th>Waiver</th><th>Emergency Contact</th></tr></thead>
+                        <tbody>
+                        {% for p in booking.participants %}
+                        <tr>
+                            <td>{{ p.name }}</td>
+                            <td>{{ p.age or '—' }}</td>
+                            <td>{% if p.waiver_signed %}<span class="badge badge-success">Signed</span>{% else %}<span class="badge badge-warning">Pending</span>{% endif %}</td>
+                            <td>{{ p.emergency_contact_name or '—' }} {{ p.emergency_contact_phone or '' }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;">
+        <div class="admin-card">
+            <div class="admin-card-header"><h2>Update Status</h2></div>
+            <div class="admin-card-body">
+                <form method="POST" action="{{ url_for('admin_update_booking_status', booking_id=booking.id) }}">
+                    <div class="form-group">
+                        <label>New Status</label>
+                        <select name="status" class="form-control">
+                            <option value="confirmed" {% if booking.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                            <option value="completed" {% if booking.status == 'completed' %}selected{% endif %}>Completed</option>
+                            <option value="no_show" {% if booking.status == 'no_show' %}selected{% endif %}>No-Show</option>
+                            <option value="cancelled" {% if booking.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm btn-block">Update Status</button>
+                </form>
+            </div>
+        </div>
+
+        {% if booking.payment_status == 'paid' or booking.payment_status == 'partial_refund' %}
+        <div class="admin-card">
+            <div class="admin-card-header"><h2>Process Refund</h2></div>
+            <div class="admin-card-body">
+                <p class="text-sm text-muted mb-2">
+                    Paid: {{ booking.formatted_total }}
+                    {% if booking.refund_amount_cents > 0 %} | Already refunded: ${{ "%.2f"|format(booking.refund_amount_cents / 100) }}{% endif %}
+                </p>
+                <form method="POST" action="{{ url_for('admin_refund_booking', booking_id=booking.id) }}" onsubmit="return confirm('Process this refund?');">
+                    <div class="form-group">
+                        <label>Refund Amount ($)</label>
+                        <input type="number" name="refund_amount" class="form-control" step="0.01" min="0.01" max="{{ (booking.total_cents - booking.refund_amount_cents) / 100 }}" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger btn-sm btn-block">Process Refund</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if booking.stripe_payment_intent_id %}
+    <div class="admin-card">
+        <div class="admin-card-header"><h2>Stripe Details</h2></div>
+        <div class="admin-card-body">
+            <p class="text-sm">Payment Intent: <code>{{ booking.stripe_payment_intent_id }}</code></p>
+            {% if booking.stripe_charge_id %}<p class="text-sm">Charge: <code>{{ booking.stripe_charge_id }}</code></p>{% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="mt-2">
+    <a href="{{ url_for('admin_bookings') }}" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back to Bookings</a>
+</div>
+{% endblock %}
