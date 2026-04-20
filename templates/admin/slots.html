@@ -1,0 +1,95 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Time Slots{% endblock %}
+{% block page_title %}Time Slots{% endblock %}
+{% block admin_content %}
+<!-- Generate Slots -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h2><i class="fas fa-magic" style="color:var(--primary);"></i> Generate Time Slots</h2>
+    </div>
+    <div class="admin-card-body">
+        <form method="POST" action="{{ url_for('admin_generate_slots') }}" class="admin-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="tour_id">Tour *</label>
+                    <select id="tour_id" name="tour_id" class="form-control" required>
+                        {% for t in tours %}
+                        <option value="{{ t.id }}">{{ t.name }} ({{ t.formatted_duration }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="guide_id">Assign Guide</label>
+                    <select id="guide_id" name="guide_id" class="form-control">
+                        <option value="">— Unassigned —</option>
+                        {% for g in guides %}
+                        <option value="{{ g.id }}">{{ g.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="start_date">Start Date *</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="end_date">End Date *</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="times">Start Times (comma-separated, 24h format) *</label>
+                <input type="text" id="times" name="times" class="form-control" value="09:00,11:00,14:00,16:00" required>
+                <p class="hint">Example: 09:00,11:00,14:00,16:00</p>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-calendar-plus"></i> Generate Slots</button>
+        </form>
+    </div>
+</div>
+
+<!-- Existing Slots -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h2>Scheduled Slots</h2>
+        <div class="flex items-center" style="gap:.5rem;">
+            <input type="date" id="filterDate" value="{{ filter_date }}" class="form-control" style="width:auto;padding:.375rem .5rem;font-size:.813rem;" onchange="window.location='?date='+this.value">
+        </div>
+    </div>
+    <div class="admin-card-body no-pad">
+        {% if slots %}
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Date</th><th>Time</th><th>Tour</th><th>Guide</th><th>Booked</th><th>Available</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody>
+                {% for s in slots %}
+                <tr>
+                    <td>{{ s.slot_date.strftime('%b %d, %Y') }}</td>
+                    <td>{{ s.formatted_time }}</td>
+                    <td>{{ s.tour.name }}</td>
+                    <td>{{ s.guide.name if s.guide else '—' }}</td>
+                    <td>{{ s.booked_count }}</td>
+                    <td>
+                        {% if s.available_spots == 0 %}<span class="badge badge-warning">Full</span>
+                        {% elif s.available_spots <= 2 %}<span class="badge badge-warning">{{ s.available_spots }} left</span>
+                        {% else %}<span class="badge badge-success">{{ s.available_spots }} left</span>{% endif %}
+                    </td>
+                    <td><span class="badge {% if s.status == 'open' %}badge-success{% elif s.status == 'cancelled' %}badge-danger{% else %}badge-warning{% endif %}">{{ s.status|capitalize }}</span></td>
+                    <td>
+                        {% if s.status == 'open' %}
+                        <form method="POST" action="{{ url_for('admin_cancel_slot', slot_id=s.id) }}" style="display:inline;" onsubmit="return confirm('Cancel this slot? All bookings will be refunded.');">
+                            <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state"><i class="fas fa-calendar-times"></i><h3>No slots found</h3><p>Generate slots above to get started.</p></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
