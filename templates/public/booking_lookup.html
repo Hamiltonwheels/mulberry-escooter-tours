@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Look Up Booking — Mulberry E-Scooter Tours{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="lookup-page">
+        <div class="booking-form">
+            <h2 class="text-center"><i class="fas fa-search" style="color:var(--primary);"></i> Find Your Booking</h2>
+            <p class="text-center text-muted text-sm mb-3">Enter your booking reference and email to view or manage your booking.</p>
+            <form method="POST">
+                <div class="form-group">
+                    <label for="booking_ref">Booking Reference</label>
+                    <input type="text" id="booking_ref" name="booking_ref" class="form-control" required placeholder="MST-XXXXXXXX" style="text-transform:uppercase;">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-control" required placeholder="you@example.com">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-search"></i> Look Up Booking</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
