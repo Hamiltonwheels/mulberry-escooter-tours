@@ -1,0 +1,37 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Scooters{% endblock %}
+{% block page_title %}Fleet Management{% endblock %}
+{% block admin_content %}
+<div class="flex items-center justify-between mb-2">
+    <p class="text-muted text-sm">Manage your e-scooter fleet</p>
+    <a href="{{ url_for('admin_scooter_new') }}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add Scooter</a>
+</div>
+<div class="admin-card">
+    <div class="admin-card-body no-pad">
+        {% if scooters %}
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>ID</th><th>Name</th><th>Model</th><th>Status</th><th>Last Maintenance</th><th>Notes</th><th>Actions</th></tr></thead>
+                <tbody>
+                {% for s in scooters %}
+                <tr>
+                    <td style="font-weight:600;">{{ s.scooter_id }}</td>
+                    <td>{{ s.name }}</td>
+                    <td>{{ s.model }}</td>
+                    <td>
+                        <span class="badge {% if s.status == 'available' %}badge-success{% elif s.status == 'maintenance' %}badge-warning{% else %}badge-danger{% endif %}">{{ s.status|capitalize }}</span>
+                    </td>
+                    <td>{{ s.last_maintenance.strftime('%b %d, %Y') if s.last_maintenance else '—' }}</td>
+                    <td class="text-sm text-muted">{{ s.notes or '—' }}</td>
+                    <td><a href="{{ url_for('admin_scooter_edit', scooter_id=s.id) }}" class="btn btn-outline btn-sm">Edit</a></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state"><i class="fas fa-motorcycle"></i><h3>No scooters yet</h3><p>Add your first scooter to the fleet.</p></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
