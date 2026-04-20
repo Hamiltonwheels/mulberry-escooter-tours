@@ -1,0 +1,115 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block admin_content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-calendar-check"></i></div>
+        <div class="stat-info"><h3>{{ stats.today_bookings }}</h3><p>Today's Bookings</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="fas fa-ticket-alt"></i></div>
+        <div class="stat-info"><h3>{{ stats.total_bookings }}</h3><p>Total Bookings</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon amber"><i class="fas fa-dollar-sign"></i></div>
+        <div class="stat-info"><h3>${{ "%.2f"|format(stats.revenue_today) }}</h3><p>Revenue Today</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-chart-line"></i></div>
+        <div class="stat-info"><h3>${{ "%.2f"|format(stats.revenue_month) }}</h3><p>Revenue This Month</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="fas fa-motorcycle"></i></div>
+        <div class="stat-info"><h3>{{ stats.active_scooters }}/{{ stats.total_scooters }}</h3><p>Active Scooters</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-route"></i></div>
+        <div class="stat-info"><h3>{{ stats.upcoming_tours }}</h3><p>Upcoming Slots</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon amber"><i class="fas fa-file-signature"></i></div>
+        <div class="stat-info"><h3>{{ stats.pending_waivers }}</h3><p>Pending Waivers</p></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red"><i class="fas fa-envelope"></i></div>
+        <div class="stat-info"><h3>{{ stats.unread_messages }}</h3><p>Unread Messages</p></div>
+    </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr;gap:1.5rem;">
+    <!-- Upcoming Tours -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2><i class="fas fa-calendar" style="color:var(--primary);"></i> Upcoming Tours</h2>
+            <a href="{{ url_for('admin_slots') }}" class="btn btn-outline btn-sm">View All</a>
+        </div>
+        <div class="admin-card-body no-pad">
+            {% if upcoming %}
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Date</th><th>Time</th><th>Tour</th><th>Guide</th><th>Booked</th><th>Status</th></tr></thead>
+                    <tbody>
+                    {% for slot in upcoming %}
+                    <tr>
+                        <td>{{ slot.slot_date.strftime('%b %d') }}</td>
+                        <td>{{ slot.formatted_time }}</td>
+                        <td>{{ slot.tour.name }}</td>
+                        <td>{{ slot.guide.name if slot.guide else '—' }}</td>
+                        <td>{{ slot.booked_count }}/{{ slot.max_riders }}</td>
+                        <td>
+                            {% if slot.status == 'open' and slot.available_spots > 0 %}
+                            <span class="badge badge-success">Open</span>
+                            {% elif slot.available_spots == 0 %}
+                            <span class="badge badge-warning">Full</span>
+                            {% else %}
+                            <span class="badge badge-danger">{{ slot.status|capitalize }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state"><i class="fas fa-calendar-times"></i><h3>No upcoming tours</h3><p>Generate time slots to get started.</p></div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Bookings -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2><i class="fas fa-ticket-alt" style="color:var(--info);"></i> Recent Bookings</h2>
+            <a href="{{ url_for('admin_bookings') }}" class="btn btn-outline btn-sm">View All</a>
+        </div>
+        <div class="admin-card-body no-pad">
+            {% if recent_bookings %}
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Ref</th><th>Customer</th><th>Tour</th><th>Riders</th><th>Total</th><th>Status</th></tr></thead>
+                    <tbody>
+                    {% for b in recent_bookings %}
+                    <tr>
+                        <td><a href="{{ url_for('admin_booking_detail', booking_id=b.id) }}">{{ b.booking_ref }}</a></td>
+                        <td>{{ b.customer_name }}</td>
+                        <td>{{ b.tour_name }}</td>
+                        <td>{{ b.num_riders }}</td>
+                        <td>{{ b.formatted_total }}</td>
+                        <td>
+                            <span class="badge {% if b.status == 'confirmed' %}badge-success{% elif b.status == 'cancelled' %}badge-danger{% elif b.status == 'completed' %}badge-info{% else %}badge-warning{% endif %}">
+                                {{ b.status|capitalize }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state"><i class="fas fa-inbox"></i><h3>No bookings yet</h3><p>Bookings will appear here once customers start booking.</p></div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
