@@ -1342,6 +1342,25 @@ def admin_waiver_edit(waiver_id):
 # =========================================================================
 #  HEALTH CHECK
 # =========================================================================
+@app.route('/seed-database')
+def seed_database():
+    """One-time database seeder. Remove after use."""
+    from models import Tour, Scooter, Guide, WaiverTemplate, Admin
+    if Tour.query.first():
+        return 'Database already seeded!', 200
+    t1 = Tour(name='Downtown Discovery', slug='downtown-discovery', description='Cruise through historic downtown Mulberry on this beginner-friendly guided tour. See the courthouse square, local murals, and hidden gems.', short_description='Explore historic downtown Mulberry at a relaxed pace.', duration_minutes=60, price_cents=3500, max_riders=6, min_riders=1, difficulty='easy', distance_miles=3.5, meeting_point='Mulberry Town Square', is_active=True, is_featured=True)
+    t2 = Tour(name='Scenic Country Cruise', slug='scenic-country-cruise', description='Escape the town and glide through beautiful Georgia countryside. Rolling hills, farmland vistas, and fresh air await on this extended adventure.', short_description='Beautiful countryside views on a leisurely ride.', duration_minutes=90, price_cents=5000, max_riders=6, min_riders=1, difficulty='moderate', distance_miles=6.0, meeting_point='Mulberry Town Square', is_active=True, is_featured=True)
+    t3 = Tour(name='Sunset Explorer', slug='sunset-explorer', description='Experience Mulberry bathed in golden hour light. This evening tour takes you through the best scenic overlooks and ends with a stunning Georgia sunset.', short_description='Golden hour magic through Mulberry\'s best views.', duration_minutes=120, price_cents=6500, max_riders=4, min_riders=2, difficulty='easy', distance_miles=5.0, meeting_point='Mulberry Town Square', is_active=True, is_featured=True)
+    db.session.add_all([t1, t2, t3])
+    for i in range(1, 9):
+        db.session.add(Scooter(name=f'Scooter {i}', scooter_id=f'MES-{i:03d}', model='Segway Ninebot Max G2', status='available'))
+    db.session.add(Guide(name='Carter Hamilton', email='info@mulberryscootertours.com', phone='(706) 555-0199', bio='Owner and lead guide. Born and raised in Mulberry, GA.', is_active=True, max_group_size=6))
+    db.session.add(WaiverTemplate(title='Liability Waiver & Release', content='I acknowledge that riding an electric scooter involves inherent risks. I agree to follow all safety instructions, wear the provided helmet, and ride responsibly. I release Mulberry E-Scooter Tours from liability for any injuries sustained during the tour.', version='1.0', is_active=True))
+    admin = Admin(username='admin', email='info@mulberryscootertours.com', full_name='Carter Hamilton', is_active_admin=True)
+    admin.set_password('admin123')
+    db.session.add(admin)
+    db.session.commit()
+    return 'Database seeded successfully! 3 tours, 8 scooters, 1 guide, 1 waiver, 1 admin (user: admin / pass: admin123)', 200
 
 @app.route('/health')
 def health():
