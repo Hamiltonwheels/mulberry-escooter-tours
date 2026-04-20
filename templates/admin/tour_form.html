@@ -1,0 +1,78 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ 'Edit' if tour else 'New' }} Tour{% endblock %}
+{% block page_title %}{{ 'Edit' if tour else 'New' }} Tour{% endblock %}
+{% block admin_content %}
+<div class="admin-card">
+    <div class="admin-card-body">
+        <form method="POST" class="admin-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Tour Name *</label>
+                    <input type="text" id="name" name="name" class="form-control" required value="{{ tour.name if tour else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="difficulty">Difficulty</label>
+                    <select id="difficulty" name="difficulty" class="form-control">
+                        <option value="easy" {% if tour and tour.difficulty == 'easy' %}selected{% endif %}>Easy</option>
+                        <option value="moderate" {% if tour and tour.difficulty == 'moderate' %}selected{% endif %}>Moderate</option>
+                        <option value="challenging" {% if tour and tour.difficulty == 'challenging' %}selected{% endif %}>Challenging</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="short_description">Short Description</label>
+                <input type="text" id="short_description" name="short_description" class="form-control" maxlength="250" value="{{ tour.short_description if tour else '' }}">
+                <p class="hint">Shown on tour cards (max 250 chars)</p>
+            </div>
+            <div class="form-group">
+                <label for="description">Full Description *</label>
+                <textarea id="description" name="description" class="form-control" rows="5" required>{{ tour.description if tour else '' }}</textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="duration_minutes">Duration (minutes) *</label>
+                    <input type="number" id="duration_minutes" name="duration_minutes" class="form-control" required min="15" value="{{ tour.duration_minutes if tour else 60 }}">
+                </div>
+                <div class="form-group">
+                    <label for="price">Price per Person ($) *</label>
+                    <input type="number" id="price" name="price" class="form-control" required step="0.01" min="0" value="{{ tour.price_dollars if tour else '' }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="max_riders">Max Riders</label>
+                    <input type="number" id="max_riders" name="max_riders" class="form-control" min="1" max="10" value="{{ tour.max_riders if tour else 6 }}">
+                </div>
+                <div class="form-group">
+                    <label for="distance_miles">Distance (miles)</label>
+                    <input type="number" id="distance_miles" name="distance_miles" class="form-control" step="0.1" min="0" value="{{ tour.distance_miles if tour else '' }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="meeting_point">Meeting Point</label>
+                <input type="text" id="meeting_point" name="meeting_point" class="form-control" value="{{ tour.meeting_point if tour else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="highlights">Highlights (one per line)</label>
+                <textarea id="highlights" name="highlights" class="form-control" rows="4">{{ tour.highlights if tour else '' }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="what_to_bring">What to Bring</label>
+                <textarea id="what_to_bring" name="what_to_bring" class="form-control" rows="3">{{ tour.what_to_bring if tour else '' }}</textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label><input type="checkbox" name="is_active" value="1" {% if not tour or tour.is_active %}checked{% endif %}> Active</label>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" name="is_featured" value="1" {% if tour and tour.is_featured %}checked{% endif %}> Featured</label>
+                </div>
+            </div>
+            <div class="flex" style="gap:.75rem;">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> {{ 'Update' if tour else 'Create' }} Tour</button>
+                <a href="{{ url_for('admin_tours') }}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
