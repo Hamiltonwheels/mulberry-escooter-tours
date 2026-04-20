@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}About Us — Mulberry E-Scooter Tours{% endblock %}
+{% block content %}
+<section class="about-hero">
+    <div class="container">
+        <h1>About Mulberry E-Scooter Tours</h1>
+        <p style="opacity:.9;margin-top:.5rem;">Small town. Big adventure. Zero emissions.</p>
+    </div>
+</section>
+<section class="section">
+    <div class="container about-content">
+        <p>Born from a love of Mulberry, Georgia and a passion for eco-friendly fun, Mulberry E-Scooter Tours offers guided electric scooter experiences through the heart of our charming small town.</p>
+        <p>Our mission is simple: help locals and visitors alike discover the beauty, history, and hidden gems of Mulberry — all while gliding effortlessly on state-of-the-art electric scooters. No experience needed, just a sense of adventure!</p>
+        <p>Every tour is led by a knowledgeable local guide who knows Mulberry inside and out. With small group sizes (max 6 riders), you'll get a personal, intimate experience that big tour companies simply can't match.</p>
+
+        <div class="values-grid">
+            <div class="value-card card">
+                <i class="fas fa-leaf"></i>
+                <h3>Eco-Friendly</h3>
+                <p>100% electric fleet. Zero emissions. Explore responsibly.</p>
+            </div>
+            <div class="value-card card">
+                <i class="fas fa-users"></i>
+                <h3>Small Groups</h3>
+                <p>Max 6 riders per tour for a personal, safe experience.</p>
+            </div>
+            <div class="value-card card">
+                <i class="fas fa-heart"></i>
+                <h3>Local Love</h3>
+                <p>Owned and operated by locals who know every back road and story.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="cta-banner">
+    <div class="container">
+        <h2>Come Ride With Us</h2>
+        <p>Your next adventure is just a click away.</p>
+        <a href="{{ url_for('tours_list') }}" class="btn btn-primary btn-lg"><i class="fas fa-calendar-check"></i> Book a Tour</a>
+    </div>
+</section>
+{% endblock %}
