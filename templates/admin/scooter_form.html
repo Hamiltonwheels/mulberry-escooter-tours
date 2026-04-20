@@ -1,0 +1,43 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ 'Edit' if scooter else 'Add' }} Scooter{% endblock %}
+{% block page_title %}{{ 'Edit' if scooter else 'Add' }} Scooter{% endblock %}
+{% block admin_content %}
+<div class="admin-card">
+    <div class="admin-card-body">
+        <form method="POST" class="admin-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="scooter_id">Scooter ID *</label>
+                    <input type="text" id="scooter_id" name="scooter_id" class="form-control" required placeholder="MST-001" value="{{ scooter.scooter_id if scooter else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="name">Display Name *</label>
+                    <input type="text" id="name" name="name" class="form-control" required placeholder="Scooter 1" value="{{ scooter.name if scooter else '' }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="model">Model</label>
+                    <input type="text" id="model" name="model" class="form-control" value="{{ scooter.model if scooter else 'Standard E-Scooter' }}">
+                </div>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status" class="form-control">
+                        <option value="available" {% if scooter and scooter.status == 'available' %}selected{% endif %}>Available</option>
+                        <option value="maintenance" {% if scooter and scooter.status == 'maintenance' %}selected{% endif %}>Maintenance</option>
+                        <option value="retired" {% if scooter and scooter.status == 'retired' %}selected{% endif %}>Retired</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="notes">Notes</label>
+                <textarea id="notes" name="notes" class="form-control" rows="3">{{ scooter.notes if scooter else '' }}</textarea>
+            </div>
+            <div class="flex" style="gap:.75rem;">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> {{ 'Update' if scooter else 'Add' }} Scooter</button>
+                <a href="{{ url_for('admin_scooters') }}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
