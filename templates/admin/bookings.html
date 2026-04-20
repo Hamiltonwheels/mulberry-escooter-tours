@@ -1,0 +1,43 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Bookings{% endblock %}
+{% block page_title %}Bookings{% endblock %}
+{% block admin_content %}
+<div class="filter-bar">
+    <a href="?status=all" class="filter-btn {% if status_filter == 'all' %}active{% endif %}">All</a>
+    <a href="?status=confirmed" class="filter-btn {% if status_filter == 'confirmed' %}active{% endif %}">Confirmed</a>
+    <a href="?status=pending" class="filter-btn {% if status_filter == 'pending' %}active{% endif %}">Pending</a>
+    <a href="?status=completed" class="filter-btn {% if status_filter == 'completed' %}active{% endif %}">Completed</a>
+    <a href="?status=cancelled" class="filter-btn {% if status_filter == 'cancelled' %}active{% endif %}">Cancelled</a>
+    <a href="?status=no_show" class="filter-btn {% if status_filter == 'no_show' %}active{% endif %}">No-Show</a>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card-body no-pad">
+        {% if bookings %}
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Ref</th><th>Customer</th><th>Email</th><th>Tour</th><th>Date</th><th>Riders</th><th>Total</th><th>Payment</th><th>Waiver</th><th>Status</th></tr></thead>
+                <tbody>
+                {% for b in bookings %}
+                <tr>
+                    <td><a href="{{ url_for('admin_booking_detail', booking_id=b.id) }}" style="font-weight:600;">{{ b.booking_ref }}</a></td>
+                    <td>{{ b.customer_name }}</td>
+                    <td class="text-sm">{{ b.customer_email }}</td>
+                    <td>{{ b.tour_name }}</td>
+                    <td class="text-sm">{{ b.time_slot.formatted_date }}<br>{{ b.time_slot.formatted_time }}</td>
+                    <td>{{ b.num_riders }}</td>
+                    <td>{{ b.formatted_total }}</td>
+                    <td><span class="badge {% if b.payment_status == 'paid' %}badge-success{% elif b.payment_status == 'refunded' %}badge-danger{% else %}badge-warning{% endif %}">{{ b.payment_status|capitalize }}</span></td>
+                    <td>{% if b.waiver_signed %}<span class="badge badge-success">Signed</span>{% else %}<span class="badge badge-warning">Pending</span>{% endif %}</td>
+                    <td><span class="badge {% if b.status == 'confirmed' %}badge-success{% elif b.status == 'cancelled' %}badge-danger{% elif b.status == 'completed' %}badge-info{% else %}badge-warning{% endif %}">{{ b.status|capitalize }}</span></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state"><i class="fas fa-inbox"></i><h3>No bookings found</h3><p>{% if status_filter != 'all' %}No {{ status_filter }} bookings.{% else %}Bookings will appear here.{% endif %}</p></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
