@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family:'Helvetica Neue',Arial,sans-serif;background:#f8fafc;margin:0;padding:2rem;">
+<div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+    <div style="background:#1e293b;color:#fff;padding:2rem;text-align:center;">
+        <h1 style="margin:0;font-size:1.5rem;">Booking Cancelled</h1>
+        <p style="margin:.5rem 0 0;opacity:.9;">Mulberry E-Scooter Tours</p>
+    </div>
+    <div style="padding:2rem;">
+        <p>Hi {{ booking.customer_name }},</p>
+        <p>Your booking <strong>{{ booking.booking_ref }}</strong> for <strong>{{ booking.tour_name }}</strong> on {{ booking.time_slot.formatted_date }} has been cancelled.</p>
+        {% if booking.payment_status == 'refunded' %}
+        <div style="background:#ecfdf5;border-radius:8px;padding:1rem;margin:1.5rem 0;">
+            <strong>Refund Issued:</strong> A full refund of {{ booking.formatted_total }} has been processed. Please allow 5-10 business days for the refund to appear on your statement.
+        </div>
+        {% endif %}
+        <p>We're sorry to see you go! If you'd like to rebook, visit our website anytime.</p>
+        <p style="color:#64748b;font-size:.875rem;">If you didn't request this cancellation, please contact us immediately.</p>
+    </div>
+    <div style="background:#f8fafc;padding:1.5rem;text-align:center;border-top:1px solid #e2e8f0;font-size:.75rem;color:#94a3b8;">
+        <p>Mulberry E-Scooter Tours &bull; Mulberry, GA 30260</p>
+    </div>
+</div>
+</body>
+</html>
