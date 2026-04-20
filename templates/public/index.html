@@ -1,106 +1,45 @@
-{% extends "base.html" %}
-{% block title %}Mulberry E-Scooter Tours — Explore Mulberry, GA on Two Wheels{% endblock %}
+{% extends "base.html" %} {% block title %}Mulberry E-Scooter Tours — Explore Mulberry, GA on Two Wheels{% endblock %} {% block content %}
+Explore Mulberry on
+Two Electric Wheels
+Guided e-scooter tours through the scenic charm of Mulberry, Georgia. Fun for all skill levels — no experience needed!
 
-{% block content %}
-<!-- Hero -->
-<section class="hero">
-    <div class="container hero-content">
-        <h1>Explore Mulberry on<br>Two Electric Wheels</h1>
-        <p class="subtitle">Guided e-scooter tours through the scenic charm of Mulberry, Georgia. Fun for all skill levels — no experience needed!</p>
-        <div class="hero-cta">
-            <a href="{{ url_for('tours_list') }}" class="btn btn-primary btn-lg"><i class="fas fa-calendar-check"></i> Book a Tour</a>
-            <a href="{{ url_for('about') }}" class="btn btn-outline btn-lg" style="border-color:#fff;color:#fff;">Learn More</a>
-        </div>
-        <div class="hero-stats">
-            <div class="hero-stat">
-                <div class="stat-num">5★</div>
-                <div class="stat-label">Rated Experience</div>
-            </div>
-            <div class="hero-stat">
-                <div class="stat-num">6</div>
-                <div class="stat-label">Max Group Size</div>
-            </div>
-            <div class="hero-stat">
-                <div class="stat-num">100%</div>
-                <div class="stat-label">Electric & Fun</div>
-            </div>
-        </div>
-    </div>
-</section>
+Book a Tour Learn More
+5★
+Rated Experience
+6
+Max Group Size
+100%
+Electric & Fun
+Our Tours
+Choose your adventure — from relaxing scenic cruises to exciting exploration rides through Mulberry and beyond.
 
-<!-- Featured Tours -->
-<section class="section">
-    <div class="container">
-        <div class="section-header">
-            <h2>Our Tours</h2>
-            <p>Choose your adventure — from relaxing scenic cruises to exciting exploration rides through Mulberry and beyond.</p>
-        </div>
-        <div class="tour-grid">
-            {% for tour in tours %}
-            <div class="card">
-                <div class="card-img">
-                    <i class="fas fa-bolt"></i>
-                </div>
-                <div class="card-body">
-                    {% if tour.is_featured %}<span class="badge badge-success mb-1">Featured</span>{% endif %}
-                    <h3>{{ tour.name }}</h3>
-                    <p>{{ tour.short_description or tour.description[:120] }}{% if tour.description|length > 120 %}...{% endif %}</p>
-                    <div class="card-meta">
-                        <span><i class="fas fa-clock"></i> {{ tour.formatted_duration }}</span>
-                        <span><i class="fas fa-road"></i> {{ tour.distance_miles or '—' }} mi</span>
-                        <span class="difficulty-{{ tour.difficulty }}"><i class="fas fa-signal"></i> {{ tour.difficulty|capitalize }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="card-price">{{ tour.formatted_price }} <small>/person</small></div>
-                        <a href="{{ url_for('tour_detail', slug=tour.slug) }}" class="btn btn-primary btn-sm">View & Book</a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-            {% if not tours %}
-            <div class="empty-state" style="grid-column:1/-1;">
-                <i class="fas fa-route"></i>
-                <h3>Tours Coming Soon!</h3>
-                <p>We're preparing exciting new routes. Check back soon!</p>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</section>
+{% for tour in featured_tours %}
+{% if tour.is_featured %}Featured{% endif %}
+{{ tour.name }}
+{{ tour.short_description or tour.description[:120] }}{% if tour.description|length > 120 %}...{% endif %}
 
-<!-- How It Works -->
-<section class="section" style="background:var(--bg-card);">
-    <div class="container">
-        <div class="section-header">
-            <h2>How It Works</h2>
-            <p>Three simple steps to your next adventure</p>
-        </div>
-        <div class="features-grid">
-            <div class="feature">
-                <div class="feature-icon"><i class="fas fa-calendar-alt"></i></div>
-                <h3>1. Pick Your Tour</h3>
-                <p>Browse our tours, choose your date and time, and book online in minutes. Instant confirmation!</p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon"><i class="fas fa-file-signature"></i></div>
-                <h3>2. Sign & Show Up</h3>
-                <p>Complete your digital waiver online before your tour. Just bring yourself and a sense of adventure!</p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon"><i class="fas fa-bolt"></i></div>
-                <h3>3. Ride & Explore</h3>
-                <p>Meet your guide, get a quick training, and cruise through Mulberry's best spots on an electric scooter.</p>
-            </div>
-        </div>
-    </div>
-</section>
+{{ tour.formatted_duration }} {{ tour.distance_miles or '—' }} mi {{ tour.difficulty|capitalize }}
+{{ tour.formatted_price }} /person
+View & Book
+{% endfor %} {% if not featured_tours %}
+Tours Coming Soon!
+We're preparing exciting new routes. Check back soon!
 
-<!-- CTA -->
-<section class="cta-banner">
-    <div class="container">
-        <h2>Ready to Roll?</h2>
-        <p>Book your e-scooter tour today and discover Mulberry like never before.</p>
-        <a href="{{ url_for('tours_list') }}" class="btn btn-primary btn-lg"><i class="fas fa-arrow-right"></i> Browse Tours</a>
-    </div>
-</section>
+{% endif %}
+How It Works
+Three simple steps to your next adventure
+
+1. Pick Your Tour
+Browse our tours, choose your date and time, and book online in minutes. Instant confirmation!
+
+2. Sign & Show Up
+Complete your digital waiver online before your tour. Just bring yourself and a sense of adventure!
+
+3. Ride & Explore
+Meet your guide, get a quick training, and cruise through Mulberry's best spots on an electric scooter.
+
+Ready to Roll?
+Book your e-scooter tour today and discover Mulberry like never before.
+
+Browse Tours
 {% endblock %}
