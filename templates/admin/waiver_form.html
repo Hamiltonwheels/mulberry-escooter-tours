@@ -1,0 +1,30 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ 'Edit' if waiver else 'New' }} Waiver Template{% endblock %}
+{% block page_title %}{{ 'Edit' if waiver else 'New' }} Waiver Template{% endblock %}
+{% block admin_content %}
+<div class="admin-card">
+    <div class="admin-card-body">
+        <form method="POST" class="admin-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="title">Waiver Title *</label>
+                    <input type="text" id="title" name="title" class="form-control" required value="{{ waiver.title if waiver else 'Release of Liability, Waiver of Claims, and Assumption of Risk' }}">
+                </div>
+                <div class="form-group">
+                    <label for="version">Version</label>
+                    <input type="text" id="version" name="version" class="form-control" value="{{ waiver.version if waiver else '1.0' }}" placeholder="e.g., 1.0">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="content">Waiver Content (HTML allowed) *</label>
+                <textarea id="content" name="content" class="form-control" rows="20" required style="font-family:monospace;font-size:.813rem;">{{ waiver.content if waiver else '' }}</textarea>
+                <p class="hint">You can use HTML tags for formatting (e.g., &lt;p&gt;, &lt;strong&gt;, &lt;h3&gt;, &lt;ul&gt;/&lt;li&gt;). This content is displayed on the waiver signing page.</p>
+            </div>
+            <div class="flex items-center" style="gap:1rem;">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Waiver Template</button>
+                <a href="{{ url_for('admin_waivers') }}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
