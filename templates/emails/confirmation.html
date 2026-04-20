@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family:'Helvetica Neue',Arial,sans-serif;background:#f8fafc;margin:0;padding:2rem;">
+<div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+    <div style="background:linear-gradient(135deg,#065F46,#10B981);color:#fff;padding:2rem;text-align:center;">
+        <h1 style="margin:0;font-size:1.5rem;">⚡ Booking Confirmed!</h1>
+        <p style="margin:.5rem 0 0;opacity:.9;">Mulberry E-Scooter Tours</p>
+    </div>
+    <div style="padding:2rem;">
+        <p>Hi {{ booking.customer_name }},</p>
+        <p>Your tour is confirmed! Here are your booking details:</p>
+        <table style="width:100%;border-collapse:collapse;margin:1.5rem 0;">
+            <tr><td style="padding:.5rem 0;color:#64748b;border-bottom:1px solid #e2e8f0;">Booking Ref</td><td style="padding:.5rem 0;font-weight:700;border-bottom:1px solid #e2e8f0;text-align:right;">{{ booking.booking_ref }}</td></tr>
+            <tr><td style="padding:.5rem 0;color:#64748b;border-bottom:1px solid #e2e8f0;">Tour</td><td style="padding:.5rem 0;font-weight:600;border-bottom:1px solid #e2e8f0;text-align:right;">{{ booking.tour_name }}</td></tr>
+            <tr><td style="padding:.5rem 0;color:#64748b;border-bottom:1px solid #e2e8f0;">Date</td><td style="padding:.5rem 0;border-bottom:1px solid #e2e8f0;text-align:right;">{{ booking.time_slot.formatted_date }}</td></tr>
+            <tr><td style="padding:.5rem 0;color:#64748b;border-bottom:1px solid #e2e8f0;">Time</td><td style="padding:.5rem 0;border-bottom:1px solid #e2e8f0;text-align:right;">{{ booking.time_slot.formatted_time }}</td></tr>
+            <tr><td style="padding:.5rem 0;color:#64748b;border-bottom:1px solid #e2e8f0;">Riders</td><td style="padding:.5rem 0;border-bottom:1px solid #e2e8f0;text-align:right;">{{ booking.num_riders }}</td></tr>
+            <tr><td style="padding:.5rem 0;color:#64748b;">Total Paid</td><td style="padding:.5rem 0;font-weight:700;color:#059669;text-align:right;font-size:1.125rem;">{{ booking.formatted_total }}</td></tr>
+        </table>
+        {% if booking.time_slot.tour.meeting_point %}
+        <div style="background:#ecfdf5;border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+            <strong>📍 Meeting Point:</strong> {{ booking.time_slot.tour.meeting_point }}
+        </div>
+        {% endif %}
+        {% if not booking.waiver_signed %}
+        <div style="background:#fffbeb;border-radius:8px;padding:1rem;margin-bottom:1.5rem;border-left:4px solid #f59e0b;">
+            <strong>⚠️ Waiver Required:</strong> Please sign your liability waiver before the tour.
+        </div>
+        {% endif %}
+        <h3 style="font-size:1rem;margin-bottom:.5rem;">What to Bring:</h3>
+        <ul style="color:#64748b;font-size:.875rem;">
+            <li>Comfortable, closed-toe shoes</li>
+            <li>Weather-appropriate clothing</li>
+            <li>Sunscreen and water bottle</li>
+            <li>A sense of adventure!</li>
+        </ul>
+        <p style="font-size:.875rem;color:#64748b;">We provide helmets and safety gear. Please arrive 10 minutes early for your safety briefing.</p>
+    </div>
+    <div style="background:#f8fafc;padding:1.5rem;text-align:center;border-top:1px solid #e2e8f0;font-size:.75rem;color:#94a3b8;">
+        <p>Mulberry E-Scooter Tours &bull; Mulberry, GA 30260</p>
+        <p>Questions? Reply to this email or call {{ config.BUSINESS_PHONE }}</p>
+    </div>
+</div>
+</body>
+</html>
