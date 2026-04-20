@@ -1,0 +1,42 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ 'Edit' if guide else 'Add' }} Guide{% endblock %}
+{% block page_title %}{{ 'Edit' if guide else 'Add' }} Guide{% endblock %}
+{% block admin_content %}
+<div class="admin-card">
+    <div class="admin-card-body">
+        <form method="POST" class="admin-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" name="name" class="form-control" required value="{{ guide.name if guide else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" class="form-control" required value="{{ guide.email if guide else '' }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="tel" id="phone" name="phone" class="form-control" value="{{ guide.phone if guide else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="max_group_size">Max Group Size</label>
+                    <input type="number" id="max_group_size" name="max_group_size" class="form-control" min="1" max="10" value="{{ guide.max_group_size if guide else 6 }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="bio">Bio</label>
+                <textarea id="bio" name="bio" class="form-control" rows="3">{{ guide.bio if guide else '' }}</textarea>
+            </div>
+            <div class="form-group">
+                <label><input type="checkbox" name="is_active" value="1" {% if not guide or guide.is_active %}checked{% endif %}> Active</label>
+            </div>
+            <div class="flex" style="gap:.75rem;">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> {{ 'Update' if guide else 'Add' }} Guide</button>
+                <a href="{{ url_for('admin_guides') }}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
