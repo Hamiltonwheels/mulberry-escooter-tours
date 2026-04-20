@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Booking {{ booking.booking_ref }} — Mulberry E-Scooter Tours{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="container" style="max-width:640px;">
+        <div class="booking-form">
+            <div class="flex items-center justify-between mb-2">
+                <h2><i class="fas fa-ticket-alt" style="color:var(--primary);"></i> Booking Details</h2>
+                <span class="badge {% if booking.status == 'confirmed' %}badge-success{% elif booking.status == 'cancelled' %}badge-danger{% elif booking.status == 'completed' %}badge-info{% else %}badge-warning{% endif %}">
+                    {{ booking.status|capitalize }}
+                </span>
+            </div>
+
+            <div class="success-details" style="margin:0 0 1.5rem;box-shadow:none;border:1px solid var(--border);">
+                <div class="detail-row">
+                    <span class="detail-label">Reference</span>
+                    <span class="detail-value">{{ booking.booking_ref }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Tour</span>
+                    <span class="detail-value">{{ booking.tour_name }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Date</span>
+                    <span class="detail-value">{{ booking.time_slot.formatted_date }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Time</span>
+                    <span class="detail-value">{{ booking.time_slot.formatted_time }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Name</span>
+                    <span class="detail-value">{{ booking.customer_name }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Riders</span>
+                    <span class="detail-value">{{ booking.num_riders }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Total</span>
+                    <span class="detail-value">{{ booking.formatted_total }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Payment</span>
+                    <span class="detail-value">
+                        <span class="badge {% if booking.payment_status == 'paid' %}badge-success{% elif booking.payment_status == 'refunded' %}badge-danger{% else %}badge-warning{% endif %}">
+                            {{ booking.payment_status|capitalize }}
+                        </span>
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Waiver</span>
+                    <span class="detail-value">
+                        {% if booking.waiver_signed %}
+                        <span class="badge badge-success">Signed</span>
+                        {% else %}
+                        <span class="badge badge-warning">Pending</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap" style="gap:.75rem;">
+                {% if not booking.waiver_signed and booking.status == 'confirmed' %}
+                <a href="{{ url_for('sign_waiver', booking_ref=booking.booking_ref) }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-file-signature"></i> Sign Waiver
+                </a>
+                {% endif %}
+                {% if booking.status == 'confirmed' %}
+                <a href="{{ url_for('download_calendar', booking_ref=booking.booking_ref) }}" class="btn btn-outline btn-sm">
+                    <i class="fas fa-calendar-plus"></i> Add to Calendar
+                </a>
+                {% endif %}
+            </div>
+
+            {% if booking.status == 'confirmed' %}
+            <div style="border-top:1px solid var(--border);margin-top:1.5rem;padding-top:1.5rem;">
+                <h3 style="font-size:.938rem;margin-bottom:.75rem;color:var(--danger);">Cancel Booking</h3>
+                <p class="text-sm text-muted mb-2">Cancellations made at least 24 hours before the tour receive a full refund.</p>
+                <form method="POST" action="{{ url_for('cancel_booking', booking_ref=booking.booking_ref) }}" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                    <input type="hidden" name="email" value="{{ booking.customer_email }}">
+                    <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-times"></i> Cancel Booking</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
