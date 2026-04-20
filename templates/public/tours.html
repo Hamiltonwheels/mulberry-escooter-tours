@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Our Tours — Mulberry E-Scooter Tours{% endblock %}
+{% block content %}
+<section class="tour-hero">
+    <div class="container">
+        <h1>Our Tours</h1>
+        <p>Find the perfect ride for your group</p>
+    </div>
+</section>
+<section class="section">
+    <div class="container">
+        <div class="tour-grid">
+            {% for tour in tours %}
+            <div class="card">
+                <div class="card-img"><i class="fas fa-bolt"></i></div>
+                <div class="card-body">
+                    {% if tour.is_featured %}<span class="badge badge-success mb-1">Featured</span>{% endif %}
+                    <h3>{{ tour.name }}</h3>
+                    <p>{{ tour.short_description or tour.description[:150] }}{% if tour.description|length > 150 %}...{% endif %}</p>
+                    <div class="card-meta">
+                        <span><i class="fas fa-clock"></i> {{ tour.formatted_duration }}</span>
+                        <span><i class="fas fa-road"></i> {{ tour.distance_miles or '—' }} mi</span>
+                        <span><i class="fas fa-users"></i> Max {{ tour.max_riders }}</span>
+                        <span class="difficulty-{{ tour.difficulty }}"><i class="fas fa-signal"></i> {{ tour.difficulty|capitalize }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="card-price">{{ tour.formatted_price }} <small>/person</small></div>
+                        <a href="{{ url_for('tour_detail', slug=tour.slug) }}" class="btn btn-primary btn-sm">View & Book</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% if not tours %}
+            <div class="empty-state" style="grid-column:1/-1;">
+                <i class="fas fa-route"></i>
+                <h3>Tours Coming Soon!</h3>
+                <p>We're preparing exciting new routes. Check back soon!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
