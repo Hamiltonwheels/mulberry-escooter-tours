@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book a Tour — Mulberry E-Scooter Tours</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; padding: 1rem; }
+        .widget-container { max-width: 400px; margin: 0 auto; }
+        .widget-header { background: #10B981; color: #fff; padding: 1rem 1.25rem; border-radius: 12px 12px 0 0; text-align: center; }
+        .widget-header h2 { font-size: 1.125rem; margin-bottom: .25rem; }
+        .widget-header p { font-size: .75rem; opacity: .85; }
+        .widget-body { background: #fff; border: 1px solid #e2e8f0; border-top: none; padding: 1.25rem; border-radius: 0 0 12px 12px; }
+        .w-form-group { margin-bottom: 1rem; }
+        .w-form-group label { display: block; font-weight: 600; font-size: .813rem; margin-bottom: .375rem; color: #1e293b; }
+        .w-form-group select, .w-form-group input { width: 100%; padding: .625rem .75rem; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: .875rem; font-family: inherit; }
+        .w-form-group select:focus, .w-form-group input:focus { outline: none; border-color: #10B981; box-shadow: 0 0 0 3px rgba(16,185,129,.15); }
+        .w-btn { display: block; width: 100%; padding: .75rem; background: #10B981; color: #fff; border: none; border-radius: 8px; font-size: .938rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: background .2s; }
+        .w-btn:hover { background: #059669; }
+        .w-footer { text-align: center; margin-top: .75rem; font-size: .688rem; color: #94a3b8; }
+        .w-footer a { color: #10B981; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="widget-container">
+        <div class="widget-header">
+            <h2>Book an E-Scooter Tour</h2>
+            <p>Mulberry, GA</p>
+        </div>
+        <div class="widget-body">
+            <form id="widgetForm" action="/tours" method="GET">
+                <div class="w-form-group">
+                    <label for="w-tour">Select a Tour</label>
+                    <select id="w-tour" name="tour">
+                        {% for tour in tours %}
+                        <option value="{{ tour.slug }}">{{ tour.name }} — {{ tour.formatted_price }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="w-form-group">
+                    <label for="w-date">Preferred Date</label>
+                    <input type="date" id="w-date" name="date">
+                </div>
+                <div class="w-form-group">
+                    <label for="w-riders">Number of Riders</label>
+                    <select id="w-riders" name="riders">
+                        <option>1</option><option>2</option><option>3</option>
+                        <option>4</option><option>5</option><option>6</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-btn">Check Availability</button>
+            </form>
+            <p class="w-footer">Powered by <a href="/" target="_blank">Mulberry E-Scooter Tours</a></p>
+        </div>
+    </div>
+    <script>
+    document.getElementById('widgetForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const slug = document.getElementById('w-tour').value;
+        const base = window.location.origin || 'https://mulberryscootertours.com';
+        window.open(base + '/tour/' + slug, '_blank');
+    });
+    </script>
+</body>
+</html>
