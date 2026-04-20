@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<!-- saved from url=(0048)file:///C:/Users/carta/Downloads/base%20(3).html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore Mulberry, GA on electric scooters. Book guided e-scooter tours, enjoy scenic routes, and experience the charm of small-town Georgia.">
+    <meta name="keywords" content="e-scooter tours, Mulberry GA, electric scooter rental, guided tours Georgia">
+    <title>{% block title %}Mulberry E-Scooter Tours{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link href="./{}Mulberry E-Scooter Tours{}_files/css2" rel="stylesheet">
+    <link rel="stylesheet" href="./{}Mulberry E-Scooter Tours{}_files/all.min.css">
+    <link rel="stylesheet" href="file:///C:/Users/carta/Downloads/%7B%7B%20url_for(&#39;static&#39;,%20filename=&#39;css/style.css&#39;)%20%7D%7D">
+    </head><body>{% block head_extra %}{% endblock %}
+
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="file:///C:/Users/carta/Downloads/%7B%7B%20url_for(&#39;index&#39;)%20%7D%7D" class="nav-brand">
+                <i class="fas fa-bolt"></i> Mulberry E-Scooter Tours
+            </a>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="file:///C:/Users/carta/Downloads/%7B%7B%20url_for(&#39;index&#39;)%20%7D%7D">Home</a></li>
+                <li><a href="file:///C:/Users/carta/Downloads/%7B%7B%20url_for(&#39;tours&#39;)%20%7D%7D">Tours</a></li>
+                <li><a href="file:///C:/Users/carta/Downloads/%7B%7B%20url_for(&#39;about&#39;)%20%7D%7D">About</a></li>
+                <li><a href="file:///C:/Users/carta/Downloads/%7B%7B%20url_for(&#39;faq&#39;)%20%7D%7D">FAQ</a></li>
+                <li><a href="file:///C:/Users/carta/Downloads/%7B%7B%20url_for(&#39;contact&#39;)%20%7D%7D">Contact</a></li>
+                <li><a href="file:///C:/Users/carta/Downloads/%7B%7B%20url_for(&#39;booking_lookup&#39;)%20%7D%7D">My Booking</a></li>
+                <li class="nav-cta"><a href="file:///C:/Users/carta/Downloads/%7B%7B%20url_for(&#39;tours&#39;)%20%7D%7D" class="btn btn-primary btn-sm">Book Now</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container">
+        {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">
+            <span>{{ message }}</span>
+            <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3><i class="fas fa-bolt"></i> Mulberry E-Scooter Tours</h3>
+                    <p>Explore the charm of Mulberry, Georgia on two wheels. Guided electric scooter tours for all skill levels.</p>
+                    <div class="footer-social">
+                        <a href="file:///C:/Users/carta/Downloads/base%20(3).html#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="file:///C:/Users/carta/Downloads/base%20(3).html#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="file:///C:/Users/carta/Downloads/base%20(3).html#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="file:///C:/Users/carta/Downloads/%7B%7B%20url_for(&#39;tours&#39;)%20%7D%7D">Our Tours</a></li>
+                        <li><a href="file:///C:/Users/carta/Downloads/%7B%7B%20url_for(&#39;faq&#39;)%20%7D%7D">FAQ</a></li>
+                        <li><a href="file:///C:/Users/carta/Downloads/%7B%7B%20url_for(&#39;booking_lookup&#39;)%20%7D%7D">Look Up Booking</a></li>
+                        <li><a href="file:///C:/Users/carta/Downloads/%7B%7B%20url_for(&#39;contact&#39;)%20%7D%7D">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> Mulberry, GA 30260</li>
+                        <li><i class="fas fa-phone"></i> {{ business_phone }}</li>
+                        <li><i class="fas fa-envelope"></i> {{ business_email }}</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© {{ current_year }} Mulberry E-Scooter Tours. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="file:///C:/Users/carta/Downloads/%7B%7B%20url_for(&#39;static&#39;,%20filename=&#39;js/main.js&#39;)%20%7D%7D"></script>
+    {% block scripts %}{% endblock %}
+
+
+</body></html>
