@@ -697,15 +697,16 @@ def admin_dashboard():
         TimeSlot.status == 'open'
     ).order_by(TimeSlot.start_time).all()
 
+    stats = {
+        'total_bookings': total_bookings,
+        'total_revenue': total_revenue,
+        'active_tours': Tour.query.filter_by(is_active=True).count(),
+        'available_scooters': fleet_available,
+    }
+
     return render_template('admin/dashboard.html',
+                           stats=stats,
                            todays_bookings=todays_bookings,
-                           total_bookings=total_bookings,
-                           pending_bookings=pending_bookings,
-                           total_revenue=total_revenue,
-                           week_bookings=week_bookings,
-                           fleet_available=fleet_available,
-                           fleet_total=fleet_total,
-                           unread_messages=unread_messages,
                            recent_bookings=recent_bookings,
                            upcoming_slots=upcoming_slots,
                            today=today)
@@ -1079,52 +1080,60 @@ def admin_slot_open(slot_id):
 
 @app.route('/admin/slots/generate', methods=['POST'])
 @login_required
-def admin_slots_generate():
-    """Bulk generate time slots for upcoming days."""
+def admin_generate_slots():
+    """Bulk generate time slots for a date range."""
     tour_id = request.form.get('tour_id', type=int)
-    days_ahead = request.form.get('days_ahead', type=int) or 14
     guide_id = request.form.get('guide_id', type=int) or None
+    start_date_str = request.form.get('start_date', '')
+    end_date_str = request.form.get('end_date', '')
+    start_time_str = request.form.get('start_time', '09:00')
+    end_time_str = request.form.get('end_time', '17:00')
 
     tour = Tour.query.get_or_404(tour_id)
 
-    time_options = {
-        60: [time(9, 0), time(11, 0), time(14, 0), time(16, 0)],
-        90: [time(9, 0), time(11, 0), time(14, 0)],
-        120: [time(16, 0), time(17, 0)],
-    }
-    times = time_options.get(tour.duration_minutes, [time(10, 0)])
+    try:
+        gen_start = date.fromisoformat(start_date_str)
+        gen_end = date.fromisoformat(end_date_str)
+        st_parts = start_time_str.split(':')
+        et_parts = end_time_str.split(':')
+        window_start = int(st_parts[0]) * 60 + int(st_parts[1])
+        window_end = int(et_parts[0]) * 60 + int(et_parts[1])
+    except (ValueError, IndexError):
+        flash('Invalid date or time format.', 'danger')
+        return redirect(url_for('admin_slots'))
 
-    today = date.today()
     count = 0
+    current = gen_start
+    while current <= gen_end:
+        # Generate slots within the time window for each day
+        slot_min = window_start
+        while slot_min + tour.duration_minutes <= window_end:
+            start_t = time(slot_min // 60, slot_min % 60)
 
-    for day_offset in range(1, days_ahead + 1):
-        slot_date = today + timedelta(days=day_offset)
-
-        for start_t in times:
-            # Check if slot already exists
             existing = TimeSlot.query.filter_by(
                 tour_id=tour.id,
-                slot_date=slot_date,
+                slot_date=current,
                 start_time=start_t
             ).first()
 
-            if existing:
-                continue
+            if not existing:
+                end_min = slot_min + tour.duration_minutes
+                end_t = time(end_min // 60, end_min % 60)
+                slot = TimeSlot(
+                    tour_id=tour.id,
+                    guide_id=guide_id,
+                    slot_date=current,
+                    start_time=start_t,
+                    end_time=end_t,
+                    max_riders=tour.max_riders,
+                    status='open'
+                )
+                db.session.add(slot)
+                count += 1
 
-            end_minutes = start_t.hour * 60 + start_t.minute + tour.duration_minutes
-            end_t = time(end_minutes // 60, end_minutes % 60)
+            slot_min += tour.duration_minutes + 30  # 30-min gap between tours
 
-            slot = TimeSlot(
-                tour_id=tour.id,
-                guide_id=guide_id,
-                slot_date=slot_date,
-                start_time=start_t,
-                end_time=end_t,
-                max_riders=tour.max_riders,
-                status='open'
-            )
-            db.session.add(slot)
-            count += 1
+        current += timedelta(days=1)
 
     db.session.commit()
     flash(f'{count} time slots generated for {tour.name}!', 'success')
@@ -1143,6 +1152,17 @@ def admin_messages():
     ).paginate(page=page, per_page=20, error_out=False)
 
     return render_template('admin/messages.html', messages=messages)
+
+
+@app.route('/admin/messages/<int:message_id>')
+@login_required
+def admin_message_detail(message_id):
+    """View a single contact message."""
+    message = ContactMessage.query.get_or_404(message_id)
+    if not message.is_read:
+        message.is_read = True
+        db.session.commit()
+    return render_template('admin/message_detail.html', message=message)
 
 
 @app.route('/admin/messages/<int:message_id>/read', methods=['POST'])
@@ -1238,13 +1258,26 @@ def admin_reports():
         Booking.created_at <= datetime.combine(end_date, time.max)
     ).group_by(Tour.name).all()
 
+    stats = {
+        'total_bookings': total_bookings,
+        'confirmed_bookings': confirmed_bookings,
+        'total_revenue': total_revenue,
+        'total_riders': total_riders,
+    }
+
+    # Convert query tuples to dicts with named attributes for template
+    class TourStat:
+        def __init__(self, name, booking_count, revenue, rider_count=0):
+            self.name = name
+            self.booking_count = booking_count
+            self.revenue = revenue
+            self.rider_count = rider_count
+
+    tour_stats = [TourStat(name=r[0], booking_count=r[1], revenue=r[2]) for r in revenue_by_tour]
+
     return render_template('admin/reports.html',
-                           total_revenue=total_revenue,
-                           total_bookings=total_bookings,
-                           confirmed_bookings=confirmed_bookings,
-                           cancelled_bookings=cancelled_bookings,
-                           total_riders=total_riders,
-                           revenue_by_tour=revenue_by_tour,
+                           stats=stats,
+                           tour_stats=tour_stats,
                            start_date=start_date,
                            end_date=end_date)
 
@@ -1339,28 +1372,145 @@ def admin_waiver_edit(waiver_id):
     return render_template('admin/waiver_form.html', waiver=waiver_t)
 
 
+
+# =========================================================================
+#  DATABASE SEEDING (hit /seed-database after each Railway rebuild)
+# =========================================================================
+
+@app.route('/seed-database')
+def seed_database():
+    """One-time database seed endpoint for Railway deployments."""
+    from models import Admin, Scooter, Guide, Tour, TimeSlot, WaiverTemplate
+    
+    results = []
+    
+    # Admin user
+    if not Admin.query.filter_by(username='admin').first():
+        admin = Admin(
+            username='admin',
+            email='admin@mulberryscootertours.com',
+            full_name='Carter (Owner)',
+            role='admin'
+        )
+        admin.set_password('MSTadmin2026!')
+        db.session.add(admin)
+        results.append('Admin user created (admin / MSTadmin2026!)')
+    
+    # Guides
+    guides_data = [
+        {'name': 'Alex Rivera', 'email': 'alex@mulberryscootertours.com',
+         'phone': '(706) 555-0101', 'bio': 'Born and raised in Mulberry. Knows every back road and hidden gem.'},
+        {'name': 'Jordan Lee', 'email': 'jordan@mulberryscootertours.com',
+         'phone': '(706) 555-0102', 'bio': 'Outdoor enthusiast and certified safety instructor.'},
+    ]
+    for g in guides_data:
+        if not Guide.query.filter_by(email=g['email']).first():
+            db.session.add(Guide(**g, is_active=True, max_group_size=6))
+            results.append(f"Guide {g['name']} created")
+    
+    # Scooters (10 units)
+    for i in range(1, 11):
+        sid = f'MST-{i:03d}'
+        if not Scooter.query.filter_by(scooter_id=sid).first():
+            db.session.add(Scooter(
+                name=f'Scooter {i}', scooter_id=sid,
+                model='Segway Ninebot Max G2', status='available'
+            ))
+    if not results or 'Scooter' not in str(results):
+        results.append('Scooters checked (10 units)')
+    
+    # Tours
+    tours_data = [
+        {
+            'name': 'Downtown Discovery', 'slug': 'downtown-discovery',
+            'description': 'Cruise through the heart of Mulberry on this beginner-friendly tour. Glide past historic buildings, local shops, and scenic parks while your guide shares stories about the town\'s rich history.',
+            'short_description': 'A relaxed cruise through historic downtown Mulberry.',
+            'duration_minutes': 60, 'price_cents': 3500, 'max_riders': 6,
+            'difficulty': 'easy', 'distance_miles': 4.0,
+            'highlights': 'Historic Main Street, Mulberry Town Square, Local art murals, Scenic Mulberry Park',
+            'what_to_bring': 'Comfortable closed-toe shoes, sunscreen, water bottle.',
+            'meeting_point': 'Mulberry Town Square, Main Street, Mulberry, GA 30260',
+            'is_active': True, 'is_featured': True,
+        },
+        {
+            'name': 'Scenic Countryside Cruise', 'slug': 'scenic-countryside-cruise',
+            'description': 'Escape the town center and explore the beautiful countryside surrounding Mulberry. Quiet backroads, rolling fields, and peaceful tree-lined paths.',
+            'short_description': 'Rolling fields, quiet backroads, and stunning rural Georgia views.',
+            'duration_minutes': 90, 'price_cents': 5000, 'max_riders': 6,
+            'difficulty': 'moderate', 'distance_miles': 7.5,
+            'highlights': 'Countryside backroads, Rolling farmland views, Tree-lined paths, Wildlife spotting',
+            'what_to_bring': 'Comfortable shoes, layers for weather, water bottle, camera.',
+            'meeting_point': 'Mulberry Town Square, Main Street, Mulberry, GA 30260',
+            'is_active': True, 'is_featured': True,
+        },
+        {
+            'name': 'Sunset Explorer', 'slug': 'sunset-explorer',
+            'description': 'Our most popular tour! Catch the golden hour as you cruise through Mulberry\'s most photogenic spots, ending at a scenic overlook for a breathtaking Georgia sunset.',
+            'short_description': 'Catch golden hour on our most scenic route.',
+            'duration_minutes': 120, 'price_cents': 6500, 'max_riders': 6,
+            'difficulty': 'moderate', 'distance_miles': 10.0,
+            'highlights': 'Golden hour photography, Downtown + countryside, Scenic overlook finish',
+            'what_to_bring': 'Camera/phone, layers, closed-toe shoes, water.',
+            'meeting_point': 'Mulberry Town Square, Main Street, Mulberry, GA 30260',
+            'is_active': True, 'is_featured': True,
+        },
+    ]
+    for t in tours_data:
+        if not Tour.query.filter_by(slug=t['slug']).first():
+            db.session.add(Tour(**t))
+            results.append(f"Tour '{t['name']}' created")
+    
+    db.session.commit()
+    
+    # Time slots (next 14 days)
+    tours = Tour.query.filter_by(is_active=True).all()
+    guides = Guide.query.filter_by(is_active=True).all()
+    today = date.today()
+    slot_count = 0
+    time_options = {
+        60: [(9, 0), (11, 0), (14, 0), (16, 0)],
+        90: [(9, 0), (11, 0), (14, 0)],
+        120: [(16, 0), (17, 0)],
+    }
+    for tour in tours:
+        times = time_options.get(tour.duration_minutes, [(10, 0)])
+        for day_offset in range(1, 15):
+            slot_date = today + timedelta(days=day_offset)
+            existing = TimeSlot.query.filter_by(tour_id=tour.id, slot_date=slot_date).first()
+            if existing:
+                continue
+            for i, (h, m) in enumerate(times):
+                end_min = h * 60 + m + tour.duration_minutes
+                end_t = time(end_min // 60, end_min % 60)
+                guide = guides[i % len(guides)] if guides else None
+                db.session.add(TimeSlot(
+                    tour_id=tour.id,
+                    guide_id=guide.id if guide else None,
+                    slot_date=slot_date,
+                    start_time=time(h, m),
+                    end_time=end_t,
+                    max_riders=tour.max_riders
+                ))
+                slot_count += 1
+    
+    # Waiver template
+    if not WaiverTemplate.query.filter_by(is_active=True).first():
+        db.session.add(WaiverTemplate(
+            title='Standard Liability Waiver',
+            content='See waiver page for full text.',
+            version='1.0', is_active=True
+        ))
+        results.append('Waiver template created')
+    
+    db.session.commit()
+    results.append(f'{slot_count} time slots generated (next 14 days)')
+    
+    return '<br>'.join(['Database seeded successfully!'] + results), 200
+
+
 # =========================================================================
 #  HEALTH CHECK
 # =========================================================================
-@app.route('/seed-database')
-def seed_database():
-    """One-time database seeder. Remove after use."""
-    from models import Tour, Scooter, Guide, WaiverTemplate, Admin
-    if Tour.query.first():
-        return 'Database already seeded!', 200
-    t1 = Tour(name='Downtown Discovery', slug='downtown-discovery', description='Cruise through historic downtown Mulberry on this beginner-friendly guided tour. See the courthouse square, local murals, and hidden gems.', short_description='Explore historic downtown Mulberry at a relaxed pace.', duration_minutes=60, price_cents=3500, max_riders=6, min_riders=1, difficulty='easy', distance_miles=3.5, meeting_point='Mulberry Town Square', is_active=True, is_featured=True)
-    t2 = Tour(name='Scenic Country Cruise', slug='scenic-country-cruise', description='Escape the town and glide through beautiful Georgia countryside. Rolling hills, farmland vistas, and fresh air await on this extended adventure.', short_description='Beautiful countryside views on a leisurely ride.', duration_minutes=90, price_cents=5000, max_riders=6, min_riders=1, difficulty='moderate', distance_miles=6.0, meeting_point='Mulberry Town Square', is_active=True, is_featured=True)
-    t3 = Tour(name='Sunset Explorer', slug='sunset-explorer', description='Experience Mulberry bathed in golden hour light. This evening tour takes you through the best scenic overlooks and ends with a stunning Georgia sunset.', short_description='Golden hour magic through Mulberry\'s best views.', duration_minutes=120, price_cents=6500, max_riders=4, min_riders=2, difficulty='easy', distance_miles=5.0, meeting_point='Mulberry Town Square', is_active=True, is_featured=True)
-    db.session.add_all([t1, t2, t3])
-    for i in range(1, 9):
-        db.session.add(Scooter(name=f'Scooter {i}', scooter_id=f'MES-{i:03d}', model='Segway Ninebot Max G2', status='available'))
-    db.session.add(Guide(name='Carter Hamilton', email='info@mulberryscootertours.com', phone='(706) 555-0199', bio='Owner and lead guide. Born and raised in Mulberry, GA.', is_active=True, max_group_size=6))
-    db.session.add(WaiverTemplate(title='Liability Waiver & Release', content='I acknowledge that riding an electric scooter involves inherent risks. I agree to follow all safety instructions, wear the provided helmet, and ride responsibly. I release Mulberry E-Scooter Tours from liability for any injuries sustained during the tour.', version='1.0', is_active=True))
-    admin = Admin(username='admin', email='info@mulberryscootertours.com', full_name='Carter Hamilton', is_active_admin=True)
-    admin.set_password('admin123')
-    db.session.add(admin)
-    db.session.commit()
-    return 'Database seeded successfully! 3 tours, 8 scooters, 1 guide, 1 waiver, 1 admin (user: admin / pass: admin123)', 200
 
 @app.route('/health')
 def health():
