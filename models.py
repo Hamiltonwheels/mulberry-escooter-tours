@@ -25,7 +25,7 @@ class Admin(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
     full_name = db.Column(db.String(120), nullable=False)
-    role = db.Column(db.String(20), default='admin')
+    role = db.Column(db.String(20), default='admin')  # admin, guide
     is_active_admin = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -40,8 +40,8 @@ class Scooter(db.Model):
     __tablename__ = 'scooters'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
-    scooter_id = db.Column(db.String(20), unique=True, nullable=False)
-    status = db.Column(db.String(20), default='available')
+    scooter_id = db.Column(db.String(20), unique=True, nullable=False)  # e.g., MST-001
+    status = db.Column(db.String(20), default='available')  # available, maintenance, retired
     model = db.Column(db.String(80), default='Standard E-Scooter')
     notes = db.Column(db.Text)
     last_maintenance = db.Column(db.DateTime)
@@ -73,12 +73,12 @@ class Tour(db.Model):
     description = db.Column(db.Text, nullable=False)
     short_description = db.Column(db.String(250))
     duration_minutes = db.Column(db.Integer, nullable=False)
-    price_cents = db.Column(db.Integer, nullable=False)
+    price_cents = db.Column(db.Integer, nullable=False)  # Price in cents
     max_riders = db.Column(db.Integer, default=6)
     min_riders = db.Column(db.Integer, default=1)
-    difficulty = db.Column(db.String(20), default='easy')
+    difficulty = db.Column(db.String(20), default='easy')  # easy, moderate, challenging
     distance_miles = db.Column(db.Float)
-    highlights = db.Column(db.Text)
+    highlights = db.Column(db.Text)  # JSON list of highlights
     what_to_bring = db.Column(db.Text)
     meeting_point = db.Column(db.String(250))
     image_url = db.Column(db.String(500))
@@ -116,7 +116,7 @@ class TimeSlot(db.Model):
     start_time = db.Column(db.Time, nullable=False)
     end_time = db.Column(db.Time, nullable=False)
     max_riders = db.Column(db.Integer, default=6)
-    status = db.Column(db.String(20), default='open')
+    status = db.Column(db.String(20), default='open')  # open, full, cancelled
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -149,28 +149,34 @@ class Booking(db.Model):
     booking_ref = db.Column(db.String(20), unique=True, default=generate_booking_ref)
     time_slot_id = db.Column(db.Integer, db.ForeignKey('time_slots.id'), nullable=False)
 
+    # Customer info
     customer_name = db.Column(db.String(120), nullable=False)
     customer_email = db.Column(db.String(120), nullable=False)
     customer_phone = db.Column(db.String(20), nullable=False)
     num_riders = db.Column(db.Integer, nullable=False)
 
+    # Payment
     total_cents = db.Column(db.Integer, nullable=False)
     stripe_payment_intent_id = db.Column(db.String(250))
     stripe_charge_id = db.Column(db.String(250))
-    payment_status = db.Column(db.String(20), default='pending')
+    payment_status = db.Column(db.String(20), default='pending')  # pending, paid, refunded, partial_refund
     refund_amount_cents = db.Column(db.Integer, default=0)
 
-    status = db.Column(db.String(20), default='pending')
+    # Status
+    status = db.Column(db.String(20), default='pending')  # pending, confirmed, cancelled, completed, no_show
     waiver_signed = db.Column(db.Boolean, default=False)
     waiver_signed_at = db.Column(db.DateTime)
     waiver_signer_name = db.Column(db.String(120))
 
+    # Special requests
     special_requests = db.Column(db.Text)
 
+    # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     cancelled_at = db.Column(db.DateTime)
 
+    # Participants (for group waivers)
     participants = db.relationship('Participant', backref='booking', lazy=True, cascade='all, delete-orphan')
 
     @property
